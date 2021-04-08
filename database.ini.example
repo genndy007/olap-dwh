@@ -1,0 +1,6 @@
+[postgresql]
+host=localhost
+database=your-db
+user=postgres
+password=SecurePas$1
+
