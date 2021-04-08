@@ -18,7 +18,7 @@ CREATE TABLE teams (
 -- game.csv
 CREATE TABLE venues (
     venue_id serial PRIMARY KEY,
-    venue_name varchar(30)
+    venue_name varchar(40)
 );
 -- game_officials.csv
 CREATE TABLE officials (
