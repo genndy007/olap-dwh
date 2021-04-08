@@ -229,10 +229,10 @@ def insert_facts(facts):
 # with open('facts.pickle', 'wb') as f:
 #     pickle.dump(facts, f)
 
-with open('facts.pickle', 'rb') as f:
-    facts = pickle.load(f)
+# with open('facts.pickle', 'rb') as f:
+#     facts = pickle.load(f)
 
-print("File loaded")
+#print("File loaded")
 
 
 # 3. Insert to db
@@ -255,4 +255,4 @@ print("File loaded")
 # insert_timezones(timezones)
 
 # outcome_facts table
-insert_facts(facts)
+# insert_facts(facts)
