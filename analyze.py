@@ -1,8 +1,8 @@
 import pandas as pd
 
-game_df = pd.read_csv('game.csv')
-team_info_df = pd.read_csv('team_info.csv')
-game_officials_df = pd.read_csv('game_officials.csv')
+# game_df = pd.read_csv('game.csv')
+# team_info_df = pd.read_csv('team_info.csv')
+# game_officials_df = pd.read_csv('game_officials.csv')
 
 
 # game.csv
@@ -67,9 +67,13 @@ def get_all_officials(df) -> list[list[str, str]]:
     arr_officials = []
     for idx in df.index:
         obj = df.loc[idx]
+
         game_id = str(obj["game_id"])
-        official_name = str(obj["official_name"])
-        official_type = str(obj["official_type"])
+        official_name = str(obj["official_name"]).strip()
+        official_type = str(obj["official_type"]).strip()
+
+        if official_type != 'Referee' and official_type != 'Linesman':
+            continue
 
         arr_official = [game_id, official_name, official_type]
 
@@ -85,9 +89,9 @@ def get_all_timezones(df) -> list[list[str, int, str]]:
     arr_tzs = []
     for idx in df.index:
         obj = df.loc[idx]
-        tz_location = obj["venue_time_zone_id"]
-        tz_offset = obj["venue_time_zone_offset"]
-        tz_abbr = obj["venue_time_zone_tz"]
+        tz_location = str(obj["venue_time_zone_id"])
+        tz_offset = int(obj["venue_time_zone_offset"])
+        tz_abbr = str(obj["venue_time_zone_tz"])
 
         arr_tz = [tz_location, tz_offset, tz_abbr]
 
@@ -105,31 +109,31 @@ def get_facts(df, seasons, game_types, venues, officials, timezones):
         row = df.loc[idx]
         # Season id
         season = str(row["season"])
-        season_id = search_id_array(season, seasons)
+        season_id = int(search_id_array(season, seasons))
         # Type id
-        game_type = row["type"]
-        game_type_id = search_id_array(game_type, game_types)
+        game_type = str(row["type"])
+        game_type_id = int(search_id_array(game_type, game_types))
         # Teams id
-        away_team_id = row["away_team_id"]
-        home_team_id = row["home_team_id"]
+        away_team_id = int(row["away_team_id"])
+        home_team_id = int(row["home_team_id"])
         # Venue id
-        venue = row["venue"]
-        venue_id = search_id_array(venue, venues)
+        venue = str(row["venue"])
+        venue_id = int(search_id_array(venue, venues))
         # Official id
         game_id = str(row["game_id"])
-        official_id = search_id_official(game_id, officials)
+        official_id = int(search_id_official(game_id, officials))
         # Timezone id
         tz_abbr = str(row["venue_time_zone_tz"])
-        tz_id = search_id_timezone(tz_abbr, timezones)
+        tz_id = int(search_id_timezone(tz_abbr, timezones))
 
         # Concrete fact information
-        away_goals = row["away_goals"]
-        home_goals = row["home_goals"]
-        outcome = row["outcome"]
+        away_goals = int(row["away_goals"])
+        home_goals = int(row["home_goals"])
+        outcome = str(row["outcome"])
 
         # Fact!
-        fact = [season_id, game_type_id, away_team_id, home_team_id,
-                venue_id, official_id, tz_id, away_goals, home_goals, outcome]
+        fact = [season_id, game_type_id, home_team_id, away_team_id,
+                venue_id, tz_id, official_id, away_goals, home_goals, outcome]
         arr_facts.append(fact)
 
     return arr_facts
@@ -138,21 +142,21 @@ def get_facts(df, seasons, game_types, venues, officials, timezones):
 def search_id_official(game_id, officials):
     for idx in range(len(officials)):
         if game_id == officials[idx][0]:
-            return idx
+            return idx+1
     return -1
 
 
 def search_id_array(el, arr):
     for idx in range(len(arr)):
         if arr[idx] == el:
-            return idx
+            return idx+1
     return -1
 
 
 def search_id_timezone(abbr, timezones):
     for idx in range(len(timezones)):
         if abbr == timezones[idx][2]:
-            return idx
+            return idx+1
     return -1
 
 
