@@ -1,6 +1,6 @@
 import pandas as pd
 
-# game_df = pd.read_csv('game.csv')
+#game_df = pd.read_csv('game.csv')
 # team_info_df = pd.read_csv('team_info.csv')
 # game_officials_df = pd.read_csv('game_officials.csv')
 
@@ -83,6 +83,19 @@ def get_all_officials(df) -> list[list[str, str]]:
 
 
 # game.csv
+def get_all_game_times(df):
+    times_serie = df['date_time_GMT']
+    times_serie = pd.to_datetime(times_serie)
+    times_serie = times_serie.drop_duplicates().dropna()
+
+    arr_times = []
+    for time in times_serie:
+        arr_times.append(time)
+
+    return arr_times
+
+
+# game.csv
 def get_all_timezones(df) -> list[list[str, int, str]]:
     df = df.drop_duplicates().dropna()
 
@@ -102,7 +115,7 @@ def get_all_timezones(df) -> list[list[str, int, str]]:
 
 
 # game.csv
-def get_facts(df, seasons, game_types, venues, officials, timezones):
+def get_facts(df, seasons, game_types, venues, officials, timezones, game_times):
     arr_facts = []
 
     for idx in df.index:
@@ -126,6 +139,10 @@ def get_facts(df, seasons, game_types, venues, officials, timezones):
         tz_abbr = str(row["venue_time_zone_tz"])
         tz_id = int(search_id_timezone(tz_abbr, timezones))
 
+        # Game time id
+        game_time = pd.to_datetime(row['date_time_GMT'])
+        game_time_id = int(search_id_array(game_time, game_times))
+
         # Concrete fact information
         away_goals = int(row["away_goals"])
         home_goals = int(row["home_goals"])
@@ -133,7 +150,7 @@ def get_facts(df, seasons, game_types, venues, officials, timezones):
 
         # Fact!
         fact = [season_id, game_type_id, home_team_id, away_team_id,
-                venue_id, tz_id, official_id, away_goals, home_goals, outcome]
+                venue_id, tz_id, official_id, game_time_id, away_goals, home_goals, outcome]
         arr_facts.append(fact)
 
     return arr_facts
@@ -168,6 +185,9 @@ def search_id_timezone(abbr, timezones):
 # officials = get_all_officials(game_officials_df)
 # timezones = get_all_timezones(game_df)
 
+#game_times = get_all_game_times(game_df)
+
+# print(game_df.info())
 
 # print("Dimensions arrays filled out!")
 
