@@ -3,7 +3,7 @@ import psycopg2
 import pandas as pd
 from analyze import get_all_season_years, \
     get_all_game_types, get_all_teams, get_all_venues, \
-    get_all_officials, get_all_timezones, get_facts
+    get_all_officials, get_all_timezones, get_all_game_times, get_facts
 
 import pickle
 
@@ -181,8 +181,8 @@ def insert_timezones(timezones):
 
 
 def insert_facts(facts):
-    sql = """INSERT INTO outcome_facts(season_id, game_type_id, home_team_id, away_team_id, venue_id, timezone_id, official_id, away_goals, home_goals, outcome) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    sql = """INSERT INTO outcome_facts(season_id, game_type_id, home_team_id, away_team_id, venue_id, timezone_id, official_id, game_time_id, away_goals, home_goals, outcome) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     conn = None
     try:
         params = config()
@@ -190,14 +190,15 @@ def insert_facts(facts):
         cur = conn.cursor()
 
         for f in facts:
-            try:
-                cur.execute(sql, (f[0], f[1], f[2], f[3], f[4],
-                                  f[5], f[6], f[7], f[8], f[9]))
-                conn.commit()
-            except:
-                print(f)
-                continue
+            if -1 not in f:
+                try:
+                    cur.execute(sql, tuple(f))
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print("execute error:", error)
+                    continue
 
+        conn.commit()
         cur.close()
 
     except (Exception, psycopg2.DatabaseError) as error:
@@ -208,9 +209,31 @@ def insert_facts(facts):
             conn.close()
 
 
+def insert_game_times(game_times):
+    sql = """INSERT INTO game_times(game_time) 
+            VALUES (%s)"""
+    conn = None
+    try:
+        params = config()
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+
+        for time in game_times:
+            cur.execute(sql, (time,))
+
+        conn.commit()
+        cur.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 # TEST ZONE
 # 1. Dataframes
-# game_df = pd.read_csv('game.csv')
+game_df = pd.read_csv('game.csv')
 # team_info_df = pd.read_csv('team_info.csv')
 # game_officials_df = pd.read_csv('game_officials.csv')
 
@@ -221,6 +244,7 @@ def insert_facts(facts):
 # teams = get_all_teams(team_info_df)
 # officials = get_all_officials(game_officials_df)
 # timezones = get_all_timezones(game_df)
+game_times = get_all_game_times(game_df)
 
 
 #facts = get_facts(game_df, seasons, game_types, venues, officials, timezones)
@@ -253,6 +277,9 @@ def insert_facts(facts):
 
 # timezones table
 # insert_timezones(timezones)
+
+# game_times table
+# insert_game_times(game_times)
 
 # outcome_facts table
 # insert_facts(facts)
