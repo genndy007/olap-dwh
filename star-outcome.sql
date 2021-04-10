@@ -33,6 +33,11 @@ CREATE TABLE timezones (
     timezone_offset int,
     timezone_abbr varchar(3)
 );
+
+CREATE TABLE game_times (
+    time_id serial PRIMARY KEY,
+    game_time timestamp
+);
 -- game.csv
 CREATE TABLE outcome_facts (
     outcome_id serial PRIMARY KEY,
@@ -43,6 +48,7 @@ CREATE TABLE outcome_facts (
     venue_id int REFERENCES venues(venue_id),
     timezone_id int REFERENCES timezones(timezone_id),
     official_id int REFERENCES officials(official_id),
+    game_time_id int REFERENCES game_times(time_id),
     away_goals int,
     home_goals int,
     outcome varchar(20)
