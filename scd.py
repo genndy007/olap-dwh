@@ -32,7 +32,7 @@ def change_team_name(team_id, new_team_name):
         cur = conn.cursor()
 
         cur.execute(sql, (new_team_name, team_id))
-        print(f'Now venue_id {venue_id} has timezone_id {new_tz_id}')
+        print(f'Now team_id {team_id} has team_name {new_team_name}')
 
         conn.commit()
         cur.close()
